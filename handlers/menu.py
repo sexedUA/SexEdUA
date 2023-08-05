@@ -3,9 +3,9 @@ from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, Message
 
 talk = KeyboardButton('Поговоримо про секс? 🔥')
 quiz = KeyboardButton('Квізи для дорослих 😻')
-story = KeyboardButton('SexStories 😜')
+story = KeyboardButton('Sex Stories 😜')
 kamasutra = KeyboardButton('KAMACУТРА 💏')
-therapy = KeyboardButton('SexTherapy 💆‍♀️')
+therapy = KeyboardButton('Sex Therapy 💆‍♀️')
 subscribe = KeyboardButton('Підписатись на щоденний контент 🔔')
 need_help = KeyboardButton('Допомога ℹ️')
 
