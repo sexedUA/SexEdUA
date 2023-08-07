@@ -2,8 +2,8 @@ from aiogram import Bot, Dispatcher, executor, types
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.dispatcher import FSMContext
-from app import keyboards as kb
-from app import database as db
+from keyboards import keyboards as kb
+from database import database as db
 from dotenv import load_dotenv
 import random
 import os
