@@ -31,6 +31,7 @@ async def cmd_start(message: types.Message):
     if message.from_user.id == int(os.getenv("ADMIN_ID1")) or message.from_user.id == int(os.getenv("ADMIN_ID2")):
         await message.answer("Привіт, Адмін", reply_markup=kb.main_menu_admin)
 
+
 @dp.message_handler(text="Редагувати")
 async def contacts(message: types.Message):
     if message.from_user.id == int(os.getenv("ADMIN_ID")):
@@ -58,7 +59,7 @@ async def callback_query_keyboard(callback_query: types.CallbackQuery):
 
 @dp.message_handler(text="Поза дня")
 async def add_item(message: types.Message):
-    await message.answer("Потрібно додати опис пози",reply_markup=kb.cancel)
+    await message.answer("Потрібно додати опис пози", reply_markup=kb.cancel)
     await NewOrder.desc.set()
 
 
@@ -69,6 +70,7 @@ async def add_item_desc(message: types.Message, state: FSMContext):
         print(data["desc"])
     await message.answer("Додайте фото чи GIF")
     await state.set_state(NewOrder.photo)
+
 
 @dp.message_handler(lambda message: not message.photo, state=NewOrder.photo)
 async def add_item_content_check(message: types.Message):
@@ -95,10 +97,10 @@ async def add_item_photo(message: types.Message, state: FSMContext):
     await message.answer("Поза додана!", reply_markup=kb.main_menu_admin)
     await state.finish()
 
-@dp.message_handler(lambda message: not message.text, state=NewOrder.photo)
-async def add_item_content_check(message: types.Message):
-    await state.finish()
 
+# @dp.message_handler(lambda message: not message.text, state=NewOrder.photo)
+# async def add_item_content_check(message: types.Message):
+#     await state.finish()
 
 
 if __name__ == "__main__":
