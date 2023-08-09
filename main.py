@@ -7,6 +7,7 @@ from database import database as db
 from dotenv import load_dotenv
 import random
 import os
+import time
 import io
 
 
@@ -25,17 +26,70 @@ async def set_default_commands(dp):
     print("Бот запрацював!")
 
 
-class NewOrder(StatesGroup):
-    desc = State()
-    photo = State()
+class Greetings(StatesGroup):
+    age = State()
+    gender = State()
+    orientation = State()
 
 @dp.message_handler(commands=["start"])
 async def cmd_start(message: types.Message):
-    await db.cmd_start_db(message.from_user.id)  # записує в бд id користувача
     await message.answer(
-        "Привіт!",
-        reply_markup=kb.main_menu,
+        "Привіт!"
     )
+    await message.answer_sticker('CAACAgIAAxkBAAIMvGTTY5ISyIjn-N6yi2VILV1sBmPbAAITDAAC4stASAoWS8U3wbIyMAQ')
+    time.sleep(1)
+    await message.answer(
+        "Давай познайомимось?😉",reply_markup=kb.greetings)
+    
+
+@dp.callback_query_handler()
+async def callback_query_keyboard(callback_query: types.CallbackQuery, state: FSMContext):
+    if callback_query.data == "yes":
+        # await bot.send_sticker(CAACAgEAAxkBAAIMwmTTZWvfNF2Xp4km4bVALTxERw-9AALRAQACOA6CEYhFy3sr91pVMAQ)
+        await bot.send_message(chat_id=callback_query.from_user.id,
+            text="Скільки тобі років?")
+        await Greetings.age.set()
+    elif callback_query.data == "no":
+        # await bot.send_sticker('CAACAgIAAxkBAAIMv2TTY7uFZwFDOkfkU0FVyBRaHcs5AAJ5DAACoa5ASNb10Q3I2CyMMAQ')
+        await bot.send_message(chat_id=callback_query.from_user.id,
+            text="Тоді познайомимся пізніше😉. Дивись що у нас є в меню ⬇️ ",reply_markup=kb.main_menu)
+    
+
+@dp.message_handler(lambda message: message.text.isdigit(), state=Greetings.age)
+async def get_age(message: types.Message, state: FSMContext):
+    age = message.text
+    # if age<18:
+
+    await state.update_data(age=age)
+    await bot.send_message(chat_id=message.from_user.id,
+        text="Укажи свій гендер:",
+        reply_markup=kb.gender_keyboard
+    )
+    await Greetings.next()
+
+@dp.callback_query_handler(lambda query: query.data in ["woman", "man"], state=Greetings.gender)
+async def get_gender(query: types.CallbackQuery, state: FSMContext):
+    gender = query.data
+    await state.update_data(gender=gender)
+    await bot.send_message(chat_id=query.from_user.id,
+        text="Укажи свою орієнтацію:",
+        reply_markup=kb.orientation_keyboard
+    )
+    await Greetings.next()
+
+@dp.callback_query_handler(lambda query: query.data in ["hetero", "homo", "bi"], state=Greetings.orientation)
+async def get_orientation(query: types.CallbackQuery, state: FSMContext):
+    orientation = query.data
+    async with state.proxy() as data:
+        age = data["age"]
+        gender = data["gender"]
+    await db.cmd_start_db(query.from_user.id, age, gender, orientation)
+    await bot.send_message(chat_id=query.from_user.id,
+        text="Дякуємо😊"
+    )
+    await state.finish()
+
+
 @dp.message_handler(commands=['menu'])
 async def menu(message: types.Message):
     await message.answer("Виберіть розділ", reply_markup=kb.main_menu)
@@ -68,9 +122,9 @@ async def cmd_id(message: types.Message):
     await message.answer(f"{message.from_user.id}")
 
 
-@dp.message_handler()
-async def answer(message: types.Message):
-    await message.reply("Я тебе не розумію 😔")
+# @dp.message_handler()
+# async def answer(message: types.Message):
+#     await message.reply("Я тебе не розумію 😔")
 
 if __name__ == "__main__":
     executor.start_polling(dp, on_startup = set_default_commands, skip_updates=True)

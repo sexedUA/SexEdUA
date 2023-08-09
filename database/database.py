@@ -6,10 +6,13 @@ async def db_start():
     db = sq.connect("kamasutra.db")
     cur = db.cursor()
     cur.execute(
-        "CREATE TABLE IF NOT EXISTS accounts("
+        "CREATE TABLE IF NOT EXISTS users("
         "id INTEGER PRIMARY KEY AUTOINCREMENT, "
         "tg_id INTEGER, "
-        "cart_id TEXT)"
+        "cart_id TEXT, "
+        "age INTEGER, " 
+        "gender INTEGER, "
+        "orientation INTEGER) "
     )
     db.commit()
     cur.execute(
@@ -19,10 +22,11 @@ async def db_start():
         "photo BLOB )")
     db.commit()
 
-async def cmd_start_db(user_id):
-    user = cur.execute("SELECT * FROM accounts WHERE tg_id == {key}".format(key=user_id)).fetchone()
+async def cmd_start_db(user_id, age, gender, orientation):
+    user = cur.execute("SELECT * FROM users WHERE tg_id = ?", (user_id,)).fetchone()
+    
     if not user:
-        cur.execute("INSERT INTO accounts (tg_id) VALUES ({key})".format(key=user_id))
+        cur.execute("INSERT INTO users (tg_id, age, gender, orientation) VALUES (?, ?, ?, ?)", (user_id, age, gender, orientation))
         db.commit()
 
 
@@ -48,7 +52,7 @@ def get_positions():
 
 # connection = sq.connect("kamasutra.db")
 # cur = connection.cursor()
-# cur.execute('DELETE FROM positions')
+# cur.execute('DELETE FROM accounts')
 # connection.commit()
 # connection.close()
 

@@ -6,7 +6,7 @@ from aiogram.types import (
 )
 
 
-talk = KeyboardButton("Поговоримо про секс? 🔥")
+talk = KeyboardButton("Поговоримо про секс? ")
 quiz = KeyboardButton("Квізи для дорослих 😻")
 story = KeyboardButton("Sex Stories 😜")
 kamasutra = KeyboardButton("ПОЗА ДНЯ😏")
@@ -18,6 +18,25 @@ main_menu = ReplyKeyboardMarkup(
     one_time_keyboard=True,
     resize_keyboard=True,
     keyboard=[[talk], [quiz, story], [kamasutra, therapy], [subscribe], [need_help]],
+)
+
+greetings = InlineKeyboardMarkup(row_width=2)
+greetings.add(
+    InlineKeyboardButton(text="Давай 😊 ", callback_data="yes"),
+    InlineKeyboardButton(text="Пізніше 👌 ", callback_data="no"),
+)
+
+gender_keyboard = InlineKeyboardMarkup(row_width=2)
+gender_keyboard.add(
+    InlineKeyboardButton(text="Жінка ", callback_data="woman"),
+    InlineKeyboardButton(text="Чоловік ", callback_data="man"),
+)
+
+orientation_keyboard =  InlineKeyboardMarkup(row_width=1)
+orientation_keyboard.add(
+    InlineKeyboardButton(text="Гетеросексуал", callback_data="hetero"),
+    InlineKeyboardButton(text="Гомосексуал", callback_data="homo"),
+    InlineKeyboardButton(text="Бісексуал", callback_data="bi")
 )
 
 
