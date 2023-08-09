@@ -34,21 +34,21 @@ async def quiz_choose_handler(callback: types.CallbackQuery, score: list):
     if callback.data == 'vibrator_quiz':
         await callback.message.answer('_"Що тобі більше подобається?"_', reply_markup=q1_markup, parse_mode='Markdown')
         return score
-    if callback.data.startswith('q2'):
+    if callback.data.startswith('quiz_q2'):
         score.append(callback.data)
         await callback.message.answer('_"Яке відчуття звучить для тебе найкраще?"_', reply_markup=q2_markup, parse_mode='Markdown')
         return score
-    if callback.data.startswith('q3'):
+    if callback.data.startswith('quiz_q3'):
         score.append(callback.data)
         await callback.message.answer('_"Скільки у тебе часу?"_', reply_markup=q3_markup, parse_mode='Markdown')
         return score
-    if callback.data.startswith('q4'):
+    if callback.data.startswith('quiz_q4'):
         score.append(callback.data)
         await callback.message.answer('_"Скільки вібраторів ти вже маєш?"_', reply_markup=q4_markup, parse_mode='Markdown')
         return score
-    if callback.data.startswith('qend'):
+    if callback.data.startswith('quiz_qend'):
         score.append(callback.data)
-        if 'q25' in score:
+        if 'quiz_q25' in score:
             link = get_random_link(
                 get_links('https://lovespace.ua/uk/catalog/klitoralnye'))
             await callback.message.answer('Спробуй це 😏')
@@ -56,7 +56,7 @@ async def quiz_choose_handler(callback: types.CallbackQuery, score: list):
             await callback.message.answer('Або переглянь інші товари у цій категорії 👀')
             await callback.message.answer('https://lovespace.ua/uk/catalog/klitoralnye')
             return []
-        if 'q24' in score:
+        if 'quiz_q24' in score:
             link = get_random_link(
                 get_links('https://lovespace.ua/uk/catalog/vaginalnye'))
             await callback.message.answer('Спробуй це 😏')
@@ -64,7 +64,7 @@ async def quiz_choose_handler(callback: types.CallbackQuery, score: list):
             await callback.message.answer('Або переглянь інші товари у цій категорії 👀')
             await callback.message.answer('https://lovespace.ua/uk/catalog/vaginalnye')
             return []
-        if 'q22' in score:
+        if 'quiz_q22' in score:
             link = get_random_link(
                 get_links('https://lovespace.ua/uk/catalog/dvojnye-vibratory'))
             await callback.message.answer('Спробуй це 😏')
@@ -72,7 +72,7 @@ async def quiz_choose_handler(callback: types.CallbackQuery, score: list):
             await callback.message.answer('Або переглянь інші товари у цій категорії 👀')
             await callback.message.answer('https://lovespace.ua/uk/catalog/dvojnye-vibratory')
             return []
-        if 'q21' in score:
+        if 'quiz_q21' in score:
             link = get_random_link(
                 get_links('https://lovespace.ua/uk/catalog/nabori-igrashok'))
             await callback.message.answer('Спробуй це 😏')

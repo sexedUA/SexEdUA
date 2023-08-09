@@ -49,7 +49,7 @@ def create_question_btn(answers: list, next_question: str):
     btns = []
     for answer in answers:
         btns.append(InlineKeyboardButton(
-            text=answer[0], callback_data=f'q{next_question}{answer[1]}'))
+            text=answer[0], callback_data=f'quiz_q{next_question}{answer[1]}'))
     return btns
 
 
@@ -69,7 +69,6 @@ vibrator_q4 = create_question_btn(question_4, 'end')
 
 main_menu_admin = ReplyKeyboardMarkup(resize_keyboard=True)
 main_menu_admin.add('Поза дня').add('Секс-історія').add('Секс-шоп')
-
 
 adminpanel = InlineKeyboardMarkup(row_width=1)
 adminpanel.add(

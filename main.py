@@ -48,19 +48,6 @@ async def cmd_start(message: types.Message):
         "Давай познайомимось?😉", reply_markup=kb.greetings)
 
 
-@dp.callback_query_handler()
-async def callback_query_keyboard(callback_query: types.CallbackQuery, state: FSMContext):
-    if callback_query.data == "yes":
-        # await bot.send_sticker(CAACAgEAAxkBAAIMwmTTZWvfNF2Xp4km4bVALTxERw-9AALRAQACOA6CEYhFy3sr91pVMAQ)
-        await bot.send_message(chat_id=callback_query.from_user.id,
-                               text="Скільки тобі років?")
-        await Greetings.age.set()
-    elif callback_query.data == "no":
-        # await bot.send_sticker('CAACAgIAAxkBAAIMv2TTY7uFZwFDOkfkU0FVyBRaHcs5AAJ5DAACoa5ASNb10Q3I2CyMMAQ')
-        await bot.send_message(chat_id=callback_query.from_user.id,
-                               text="Тоді познайомимся пізніше😉. Дивись що у нас є в меню ⬇️ ", reply_markup=kb.main_menu)
-
-
 @dp.message_handler(lambda message: message.text.isdigit(), state=Greetings.age)
 async def get_age(message: types.Message, state: FSMContext):
     age = message.text
@@ -130,9 +117,6 @@ async def cmd_id(message: types.Message):
     await message.answer(f"{message.from_user.id}")
 
 
-# @dp.message_handler()
-# async def answer(message: types.Message):
-#     await message.reply("Я тебе не розумію 😔")
 @dp.message_handler(text="Sex Stories 😜")
 async def random_story(message: types.Message):
     await story_handler(message)
@@ -141,11 +125,6 @@ async def random_story(message: types.Message):
 @dp.message_handler(text="Квізи для дорослих 😻")
 async def quiz_chose(message: types.Message):
     await quiz_handler(message)
-
-
-@dp.message_handler()
-async def answer(message: types.Message):
-    await message.reply("Я тебе не розумію 😔")
 
 
 @dp.callback_query_handler(text='read_story')
@@ -167,11 +146,28 @@ async def add_item_desc(message: types.Message, state: FSMContext):
     await state.finish()
 
 
-@dp.callback_query_handler()
+@dp.callback_query_handler(lambda query: query.data in ['vibrator_quiz'] or query.data.startswith('quiz'))
 async def quiz_callback(callback: types.CallbackQuery):
     global quiz_score
     quiz_score = await quiz_choose_handler(callback, quiz_score)
 
+
+@dp.callback_query_handler()
+async def callback_query_keyboard(callback_query: types.CallbackQuery, state: FSMContext):
+    if callback_query.data == "yes":
+        # await bot.send_sticker(CAACAgEAAxkBAAIMwmTTZWvfNF2Xp4km4bVALTxERw-9AALRAQACOA6CEYhFy3sr91pVMAQ)
+        await bot.send_message(chat_id=callback_query.from_user.id,
+                               text="Скільки тобі років?")
+        await Greetings.age.set()
+    elif callback_query.data == "no":
+        # await bot.send_sticker('CAACAgIAAxkBAAIMv2TTY7uFZwFDOkfkU0FVyBRaHcs5AAJ5DAACoa5ASNb10Q3I2CyMMAQ')
+        await bot.send_message(chat_id=callback_query.from_user.id,
+                               text="Тоді познайомимся пізніше😉. Дивись що у нас є в меню ⬇️ ", reply_markup=kb.main_menu)
+
+
+@dp.message_handler()
+async def answer(message: types.Message):
+    await message.reply("Я тебе не розумію 😔")
 
 if __name__ == "__main__":
     executor.start_polling(
