@@ -11,7 +11,6 @@ from keyboards.keyboards import (
     vibrator_quiz
 )
 
-
 menu_kb = ReplyKeyboardMarkup(
     one_time_keyboard=True, resize_keyboard=True, keyboard=[[talk], [quiz, story], [kamasutra, therapy], [subscribe], [need_help]])
 
@@ -24,5 +23,4 @@ async def menu_handler(message: Message):
 
 
 async def quiz_handler(message: Message):
-    if message.text == quiz.text:
-        await message.answer('Виберіть квіз', reply_markup=quiz_ib)
+    await message.answer('_"Виберіть квіз"_ ✍️', reply_markup=quiz_ib, parse_mode="Markdown")
