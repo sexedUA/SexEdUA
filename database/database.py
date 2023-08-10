@@ -31,12 +31,20 @@ async def db_start():
 
 async def cmd_start_db(user_id, age, gender, orientation):
     user = cur.execute("SELECT * FROM users WHERE tg_id = ?",
-                       (user_id,)).fetchone()
+                        (user_id,)).fetchone()
 
     if not user:
         cur.execute("INSERT INTO users (tg_id, age, gender, orientation) VALUES (?, ?, ?, ?)",
-                    (user_id, age, gender, orientation))
+                        (user_id, age, gender, orientation))
         db.commit()
+
+def get_user(user_id):
+    connection = sq.connect("kamasutra.db")
+    cur.execute("SELECT * FROM users WHERE tg_id = ?", (user_id,))
+    user = cur.fetchone()
+    connection.close()
+    return user
+
 
 
 async def add_item(state):
@@ -79,6 +87,6 @@ async def add_story(state):
 
 # connection = sq.connect("kamasutra.db")
 # cur = connection.cursor()
-# cur.execute('DELETE FROM accounts')
+# cur.execute('DELETE FROM users WHERE id=14')
 # connection.commit()
 # connection.close()

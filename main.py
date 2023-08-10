@@ -12,6 +12,9 @@ import io
 from handlers.menu import quiz_handler
 from handlers.quiz import quiz_choose_handler
 from handlers.story import story_handler, read_story, add_story, Story
+from handlers.greetings import start_on,cancel_handler,invalid_age,greetings,get_age,get_gender,get_orientation
+from handlers.kamasutra import show_animation,positions
+from bs4 import BeautifulSoup
 
 
 storage = MemoryStorage()
@@ -20,97 +23,58 @@ bot = Bot(os.getenv("TOKEN"))
 dp = Dispatcher(bot=bot, storage=storage)
 quiz_score = []
 
-
-async def set_default_commands(dp):
-    commands = [
-        types.BotCommand("start", "Почати"),
-        types.BotCommand("menu", "Головне меню")
-    ]
-    await bot.set_my_commands(commands)
-    await db.db_start()
-    print("Бот запрацював!")
-
-
 class Greetings(StatesGroup):
     age = State()
     gender = State()
     orientation = State()
 
 
+async def set_default_commands(dp):
+    commands = [
+        types.BotCommand("start", "Почати"),
+        types.BotCommand("menu", "Головне меню"),
+        types.BotCommand("cancel", "Вийти")
+    ]
+    await bot.set_my_commands(commands)
+    await db.db_start()
+    print("Бот запрацював!")
+
+
 @dp.message_handler(commands=["start"])
 async def cmd_start(message: types.Message):
-    await message.answer(
-        "Привіт!"
-    )
-    await message.answer_sticker('CAACAgIAAxkBAAIMvGTTY5ISyIjn-N6yi2VILV1sBmPbAAITDAAC4stASAoWS8U3wbIyMAQ')
-    time.sleep(1)
-    await message.answer(
-        "Давай познайомимось?😉", reply_markup=kb.greetings)
+    await start_on(message)
 
+@dp.message_handler(commands=["cancel"], state="*")
+async def cancel(message: types.Message, state: FSMContext):
+    await cancel_handler(message,state)
+
+@dp.callback_query_handler(lambda query: query.data in ["yes", "no"])
+async def greetings_start(callback_query: types.CallbackQuery, state: FSMContext):
+    await greetings(callback_query,state)
+
+@dp.message_handler(lambda message: not message.text.isdigit(), state=Greetings.age)
+async def invalid_age_(message: types.Message):
+    await invalid_age(message)
 
 @dp.message_handler(lambda message: message.text.isdigit(), state=Greetings.age)
-async def get_age(message: types.Message, state: FSMContext):
-    age = message.text
-    # if age<18:
-
-    await state.update_data(age=age)
-    await bot.send_message(chat_id=message.from_user.id,
-                           text="Укажи свій гендер:",
-                           reply_markup=kb.gender_keyboard
-                           )
-    await Greetings.next()
-
+async def get_age_(message: types.Message, state: FSMContext):
+    await get_age(message,state)
 
 @dp.callback_query_handler(lambda query: query.data in ["woman", "man"], state=Greetings.gender)
-async def get_gender(query: types.CallbackQuery, state: FSMContext):
-    gender = query.data
-    await state.update_data(gender=gender)
-    await bot.send_message(chat_id=query.from_user.id,
-                           text="Укажи свою орієнтацію:",
-                           reply_markup=kb.orientation_keyboard
-                           )
-    await Greetings.next()
-
+async def get_gender_(callback_query: types.CallbackQuery, state: FSMContext):
+    await get_gender(callback_query,state)
 
 @dp.callback_query_handler(lambda query: query.data in ["hetero", "homo", "bi"], state=Greetings.orientation)
-async def get_orientation(query: types.CallbackQuery, state: FSMContext):
-    orientation = query.data
-    async with state.proxy() as data:
-        age = data["age"]
-        gender = data["gender"]
-    await db.cmd_start_db(query.from_user.id, age, gender, orientation)
-    await bot.send_message(chat_id=query.from_user.id,
-                           text="Дякуємо😊"
-                           )
-    await state.finish()
-
+async def get_orientation_(callback_query: types.CallbackQuery, state: FSMContext):
+    await get_orientation(callback_query,state)
 
 @dp.message_handler(commands=['menu'])
 async def menu(message: types.Message):
     await message.answer("Виберіть розділ", reply_markup=kb.main_menu)
 
-
-async def show_animation(chat_id, animation_bytes, caption, reply_markup=None):
-    if isinstance(animation_bytes, str):
-        animation_bytes = animation_bytes.encode()
-    animation_io = io.BytesIO(animation_bytes)
-    await bot.send_video(chat_id=chat_id, video=types.InputFile(animation_io, filename='animation.gif'), caption=caption, reply_markup=reply_markup)
-
-
 @dp.message_handler(text="ПОЗА ДНЯ😏")
-async def cmd_katalog(message: types.Message):
-    positions = db.get_positions()
-    if positions:
-        random_position = random.choice(positions)
-        pos_id, pos_desc, pos_photo = random_position
-        max_caption_length = 1000
-        if len(pos_desc) > max_caption_length:
-            pos_desc = pos_desc[:max_caption_length]
-        response = f"Така поза: {pos_desc}"
-        await show_animation(message.chat.id, pos_photo, caption=response, reply_markup=kb.main_menu)
-    else:
-        await message.reply("Немає доступних поз")
-
+async def positions_(message: types.Message):
+    await positions(message)
 
 @dp.message_handler(commands=["id"])
 async def cmd_id(message: types.Message):
@@ -150,19 +114,6 @@ async def add_item_desc(message: types.Message, state: FSMContext):
 async def quiz_callback(callback: types.CallbackQuery):
     global quiz_score
     quiz_score = await quiz_choose_handler(callback, quiz_score)
-
-
-@dp.callback_query_handler()
-async def callback_query_keyboard(callback_query: types.CallbackQuery, state: FSMContext):
-    if callback_query.data == "yes":
-        # await bot.send_sticker(CAACAgEAAxkBAAIMwmTTZWvfNF2Xp4km4bVALTxERw-9AALRAQACOA6CEYhFy3sr91pVMAQ)
-        await bot.send_message(chat_id=callback_query.from_user.id,
-                               text="Скільки тобі років?")
-        await Greetings.age.set()
-    elif callback_query.data == "no":
-        # await bot.send_sticker('CAACAgIAAxkBAAIMv2TTY7uFZwFDOkfkU0FVyBRaHcs5AAJ5DAACoa5ASNb10Q3I2CyMMAQ')
-        await bot.send_message(chat_id=callback_query.from_user.id,
-                               text="Тоді познайомимся пізніше😉. Дивись що у нас є в меню ⬇️ ", reply_markup=kb.main_menu)
 
 
 @dp.message_handler()
