@@ -10,7 +10,7 @@ talk = KeyboardButton("Поговоримо про секс? ")
 quiz = KeyboardButton("Квізи для дорослих 😻")
 story = KeyboardButton("Sex Stories 😜")
 kamasutra = KeyboardButton("ПОЗА ДНЯ😏")
-therapy = KeyboardButton("Sex Therapy 💆‍♀️")
+review = KeyboardButton("Відкрий скарбничку з іграшками 🧸")
 subscribe = KeyboardButton("Підписатись на щоденний контент 🔔")
 need_help = KeyboardButton("Допомога ℹ️")
 
@@ -18,7 +18,7 @@ main_menu = ReplyKeyboardMarkup(
     one_time_keyboard=True,
     resize_keyboard=True,
     keyboard=[[talk], [quiz, story], [
-        kamasutra, therapy], [subscribe], [need_help]],
+        kamasutra, review], [subscribe], [need_help]],
 )
 
 greetings = InlineKeyboardMarkup(row_width=2)
@@ -68,7 +68,7 @@ vibrator_q3 = create_question_btn(question_3, '4')
 vibrator_q4 = create_question_btn(question_4, 'end')
 
 main_menu_admin = ReplyKeyboardMarkup(resize_keyboard=True)
-main_menu_admin.add('Поза дня').add('Секс-історія').add('Секс-шоп')
+main_menu_admin.add('Поза дня').add('Секс-історія').add('Секс-шоп').add('Додати ревью на товар')
 
 adminpanel = InlineKeyboardMarkup(row_width=1)
 adminpanel.add(
@@ -78,7 +78,7 @@ adminpanel.add(
 )
 
 cancel = ReplyKeyboardMarkup(resize_keyboard=True)
-cancel.add("Отмена")
+cancel.add("Назад")
 
 
 read_story = InlineKeyboardButton(
