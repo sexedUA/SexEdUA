@@ -6,7 +6,7 @@ from aiogram.types import (
 )
 
 
-talk = KeyboardButton("Поговоримо про секс? ")
+talk = KeyboardButton("Поговоримо про секс?")
 quiz = KeyboardButton("Квізи для дорослих 😻")
 story = KeyboardButton("Sex Stories 😜")
 kamasutra = KeyboardButton("ПОЗА ДНЯ😏")
@@ -87,3 +87,17 @@ add_story = InlineKeyboardButton(
     'Розказати свою 🖋️', callback_data='add_story')
 
 story_markup = InlineKeyboardMarkup(row_width=2).add(read_story, add_story)
+
+kamshot = InlineKeyboardButton(
+    'Передчасна еакуляція 💦', url='https://www.youtube.com/watch?v=VlnqPZlw54U')
+anal = InlineKeyboardButton(
+    'Факапи в анальному сексі 🚩', url='https://www.youtube.com/watch?v=sQgxRovNQgc')
+oral = InlineKeyboardButton(
+    'Міфи про оральний секс 💭', url='https://www.youtube.com/watch?v=3gkGIHtQgkU')
+rings = InlineKeyboardButton(
+    'Для чого потрібні ерекційні кільця 💍', url='https://www.youtube.com/watch?v=Q_btfckG7R8')
+all_content = InlineKeyboardButton(
+    'Підписатися на наш канал 🔔', url='https://www.youtube.com/@user-ew4wg1bm9b')
+
+talk_markup = InlineKeyboardMarkup(row_width=1).add(
+    kamshot).add(anal).add(oral).add(rings).add(all_content)
