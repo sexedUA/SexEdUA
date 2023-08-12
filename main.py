@@ -2,6 +2,9 @@ from aiogram import Bot, Dispatcher, executor, types
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.dispatcher import FSMContext
+from aiogram.types import InputFile
+import asyncio
+import aiohttp
 from keyboards import keyboards as kb
 from database import database as db
 from dotenv import load_dotenv
@@ -14,7 +17,9 @@ from handlers.quiz import quiz_choose_handler
 from handlers.story import story_handler, read_story, add_story, Story
 from handlers.greetings import start_on,cancel_handler,invalid_age,greetings,get_age,get_gender,get_orientation
 from handlers.kamasutra import show_animation,positions
+from handlers.reviews import show_photo,send_review
 from bs4 import BeautifulSoup
+import sqlite3 as sq
 
 
 storage = MemoryStorage()
@@ -27,7 +32,6 @@ class Greetings(StatesGroup):
     age = State()
     gender = State()
     orientation = State()
-
 
 async def set_default_commands(dp):
     commands = [
@@ -67,6 +71,11 @@ async def get_gender_(callback_query: types.CallbackQuery, state: FSMContext):
 @dp.callback_query_handler(lambda query: query.data in ["hetero", "homo", "bi"], state=Greetings.orientation)
 async def get_orientation_(callback_query: types.CallbackQuery, state: FSMContext):
     await get_orientation(callback_query,state)
+
+@dp.message_handler(text="Відкрий скарбничку з іграшками 🧸")
+async def send_review_(message: types.Message):
+    await send_review(message)
+
 
 @dp.message_handler(commands=['menu'])
 async def menu(message: types.Message):
@@ -121,5 +130,5 @@ async def answer(message: types.Message):
     await message.reply("Я тебе не розумію 😔")
 
 if __name__ == "__main__":
-    executor.start_polling(
+        executor.start_polling(
         dp, on_startup=set_default_commands, skip_updates=True)
