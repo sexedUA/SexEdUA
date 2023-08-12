@@ -14,22 +14,25 @@ import time
 import io
 import sqlite3 as sq
 
+
 async def show_photo(chat_id, photo_data, caption, reply_markup=None):
-    if photo_data["file_id"] is not None:
-        await bot.send_photo(chat_id=chat_id, photo=photo_data["file_id"], caption=caption, reply_markup=kb.main_menu)
-    else:
-        if "photo" in photo_data:  # Проверяем наличие фото в photo_data
-            photo_io = io.BytesIO(photo_data["photo"])
-            photo_io.name = 'photo.jpg'
-            input_photo = types.InputFile(photo_io)
-            response = await bot.send_photo(chat_id=chat_id, photo=input_photo, caption=caption, reply_markup=kb.main_menu)
-            file_id = response.photo[-1].file_id
-            photo_data["file_id"] = file_id  # Сохраняем полученный file_id в photo_data
-            connection = sq.connect("kamasutra.db")
-            cur = connection.cursor()
-            cur.execute("UPDATE reviews SET file_id = ? WHERE id = ?", (file_id, photo_data["id"]))
-            connection.commit()
-            connection.close()
+    # if photo_data["file_id"] is not None:
+    #     await bot.send_photo(chat_id=chat_id, photo=photo_data["file_id"], caption=caption, reply_markup=kb.main_menu)
+    # else:
+    if "photo" in photo_data:  # Проверяем наличие фото в photo_data
+        photo_io = io.BytesIO(photo_data["photo"])
+        photo_io.name = 'photo.jpg'
+        input_photo = types.InputFile(photo_io)
+        response = await bot.send_photo(chat_id=chat_id, photo=input_photo, caption=caption, reply_markup=kb.main_menu)
+        file_id = response.photo[-1].file_id
+        # Сохраняем полученный file_id в photo_data
+        photo_data["file_id"] = file_id
+        connection = sq.connect("kamasutra.db")
+        cur = connection.cursor()
+        cur.execute("UPDATE reviews SET file_id = ? WHERE id = ?",
+                    (file_id, photo_data["id"]))
+        connection.commit()
+        connection.close()
 
 storage = MemoryStorage()
 load_dotenv()
