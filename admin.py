@@ -5,9 +5,8 @@ from aiogram.dispatcher import FSMContext
 from keyboards import keyboards as kb
 from database import database as db
 from dotenv import load_dotenv
-import random
 import os
-import sqlite3 as sq
+
 
 storage = MemoryStorage()
 load_dotenv()
@@ -22,13 +21,11 @@ async def set_default_commands(dp):
         types.BotCommand("cancel", "Вийти")
     ]
     await bot.set_my_commands(commands)
-    await db.db_start()
     print("Бот запрацював!")
 
 
-# async def on_startup(_):
-#     await db.db_start()
-#     print("Бот запрацював!")
+async def on_shutdown(dp):
+    await db.db_close()
 
 
 class NewOrder(StatesGroup):
@@ -64,7 +61,7 @@ async def menu_handler(message: types.Message):
 
 
 @dp.message_handler(text='Секс-історія')
-async def add_item(message: types.Message):
+async def get_stories(message: types.Message):
     stories = db.get_stories_admin()
     if stories:
         pass
@@ -138,7 +135,7 @@ async def add_item_photo(message: types.Message, state: FSMContext):
 
 
 @dp.message_handler(text="Додати ревью на товар")
-async def add_item(message: types.Message):
+async def add_review_text(message: types.Message):
     await message.answer("Потрібно додати текст ревью", reply_markup=kb.cancel)
     await NewReview.desc.set()
 
@@ -179,4 +176,4 @@ async def add_review_photo(message: types.Message, state: FSMContext):
 
 if __name__ == "__main__":
     executor.start_polling(
-        dp, on_startup=set_default_commands, skip_updates=True)
+        dp, on_startup=set_default_commands, skip_updates=True, on_shutdown=on_shutdown)

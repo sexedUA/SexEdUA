@@ -22,5 +22,5 @@ async def read_story(callback: types.CallbackQuery):
     stories = db.get_stories()
     if stories:
         story = random.choice(stories)
-        _, story_text, status = story
+        id, story_text, status = story
         await callback.message.answer(f'_{story_text}_', parse_mode='Markdown', reply_markup=story_markup)
