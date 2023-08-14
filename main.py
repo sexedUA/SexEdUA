@@ -2,25 +2,17 @@ from aiogram import Bot, Dispatcher, executor, types
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.dispatcher import FSMContext
-from aiogram.types import InputFile
-import asyncio
-import aiohttp
 from keyboards import keyboards as kb
 from database import database as db
 from dotenv import load_dotenv
-import random
 import os
-import time
-import io
 from handlers.menu import quiz_handler
 from handlers.quiz import quiz_choose_handler
 from handlers.story import story_handler, read_story, add_story, Story
 from handlers.greetings import start_on, cancel_handler, invalid_age, greetings, get_age, get_gender, get_orientation
-from handlers.kamasutra import show_animation, positions
-from handlers.reviews import show_photo, send_review
+from handlers.kamasutra import positions
+from handlers.reviews import send_review
 from handlers.talk import talk_handler
-from bs4 import BeautifulSoup
-import sqlite3 as sq
 
 
 storage = MemoryStorage()
@@ -43,8 +35,11 @@ async def set_default_commands(dp):
         types.BotCommand("cancel", "Вийти")
     ]
     await bot.set_my_commands(commands)
-    await db.db_start()
     print("Бот запрацював!")
+
+
+async def on_shutdown(dp):
+    await db.db_close()
 
 
 @dp.message_handler(commands=["start"])
@@ -148,4 +143,4 @@ async def answer(message: types.Message):
 
 if __name__ == "__main__":
     executor.start_polling(
-        dp, on_startup=set_default_commands, skip_updates=True)
+        dp, on_startup=set_default_commands, skip_updates=True, on_shutdown=on_shutdown)
