@@ -24,9 +24,15 @@ async def show_animation(chat_id, animation_bytes, caption, reply_markup=None):
     if isinstance(animation_bytes, str):
         animation_bytes = animation_bytes.encode()
     animation_io = io.BytesIO(animation_bytes)
-    await bot.send_video(chat_id=chat_id, video=types.InputFile(animation_io, filename='animation.gif'), caption=caption, reply_markup=reply_markup)
+    await bot.send_video(
+        chat_id=chat_id,
+        video=types.InputFile(animation_io, filename="animation.gif"),
+        caption=caption,
+        reply_markup=reply_markup,
+    )
 
-async def positions(message: types.Message):
+
+async def positions(user_id):
     positions = db.get_positions()
     if positions:
         random_position = random.choice(positions)
@@ -35,6 +41,28 @@ async def positions(message: types.Message):
         if len(pos_desc) > max_caption_length:
             pos_desc = pos_desc[:max_caption_length]
         response = f"Така поза: {pos_desc}"
-        await show_animation(message.chat.id, pos_photo, caption=response, reply_markup=kb.main_menu)
+        await show_animation(
+            user_id, pos_photo, caption=response, reply_markup=kb.main_menu
+        )
     else:
-        await message.reply("Немає доступних поз")
+        await bot.send_message(user_id, "Немає доступних поз")
+
+
+async def positions_subscriber(subscriber_id):
+    positions = db.get_positions()
+    if positions:
+        random_position = random.choice(positions)
+        pos_id, pos_desc, pos_photo = random_position
+        max_caption_length = 1000
+        if len(pos_desc) > max_caption_length:
+            pos_desc = pos_desc[:max_caption_length]
+        response = f"Така поза: {pos_desc}"
+
+        # Получить объект types.User по идентификатору
+        subscriber = await bot.get_chat(subscriber_id)
+
+        await show_animation(
+            subscriber_id, pos_photo, caption=response, reply_markup=kb.main_menu
+        )
+    else:
+        await bot.send_message(subscriber_id, "Немає доступних поз")
