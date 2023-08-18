@@ -35,12 +35,6 @@ async def cmd_start_db(user_id, age, gender, orientation):
 
 def get_user(user_id):
     rs = client.execute(f'select * from users where tg_id == {user_id}')
-    user = rs.rows
-    if not user:
-        client.execute("insert into users values (:uid, :tg_id, :age, :gender, :orientation)",
-                       {"uid": f'{uuid.uuid4()}', "tg_id": user_id, "age": age,
-                        "gender": gender, "orientation": orientation}
-                       )
     return rs.rows
 
 
