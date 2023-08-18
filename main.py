@@ -2,13 +2,9 @@ from aiogram import Bot, Dispatcher, executor, types
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.dispatcher import FSMContext
-from aiogram.types import InputFile
-import asyncio
-import aiohttp
 from keyboards import keyboards as kb
 from database import database as db
 from dotenv import load_dotenv
-import random
 import os
 import time
 import schedule
@@ -32,6 +28,7 @@ from bs4 import BeautifulSoup
 import sqlite3 as sq
 from aioschedule import every, run_pending
 
+
 storage = MemoryStorage()
 load_dotenv()
 bot = Bot(os.getenv("TOKEN"))
@@ -52,8 +49,11 @@ async def set_default_commands(dp):
         types.BotCommand("cancel", "Вийти"),
     ]
     await bot.set_my_commands(commands)
-    await db.db_start()
     print("Бот запрацював!")
+
+
+async def on_shutdown(dp):
+    await db.db_close()
 
 
 @dp.message_handler(commands=["start"])
@@ -194,6 +194,9 @@ async def answer(message: types.Message):
 
 
 if __name__ == "__main__":
+
     loop = asyncio.get_event_loop()
     loop.create_task(schedule_positions())
-    executor.start_polling(dp, on_startup=set_default_commands, skip_updates=True)
+        executor.start_polling(
+        dp, on_startup=set_default_commands, skip_updates=True, on_shutdown=on_shutdown)
+
