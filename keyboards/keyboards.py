@@ -17,7 +17,8 @@ need_help = KeyboardButton("Допомога ℹ️")
 main_menu = ReplyKeyboardMarkup(
     one_time_keyboard=True,
     resize_keyboard=True,
-    keyboard=[[talk], [quiz, story], [kamasutra, review], [subscribe], [need_help]],
+    keyboard=[[talk], [quiz, story], [
+        kamasutra, review], [subscribe], [need_help]],
 )
 
 greetings = InlineKeyboardMarkup(row_width=2)
@@ -100,8 +101,10 @@ cancel = ReplyKeyboardMarkup(resize_keyboard=True)
 cancel.add("Назад")
 
 
-read_story = InlineKeyboardButton("Читати історію 🗞️", callback_data="read_story")
-add_story = InlineKeyboardButton("Розказати свою 🖋️", callback_data="add_story")
+read_story = InlineKeyboardButton(
+    "Читати історію 🗞️", callback_data="read_story")
+add_story = InlineKeyboardButton(
+    "Розказати свою 🖋️", callback_data="add_story")
 
 story_markup = InlineKeyboardMarkup(row_width=2).add(read_story, add_story)
 
@@ -135,3 +138,19 @@ Subscr = ReplyKeyboardMarkup(resize_keyboard=True)
 yes_btn = KeyboardButton("Хочу ✅")
 no_btn = KeyboardButton("Пізніше ❌")
 Subscr.add(yes_btn, no_btn)
+talk_markup = InlineKeyboardMarkup(row_width=1).add(
+    kamshot).add(anal).add(oral).add(rings).add(all_content)
+
+
+approve_story = InlineKeyboardButton(
+    'Додати історію', callback_data='approve-story')
+delete_story = InlineKeyboardButton(
+    'Видалити історію', callback_data='delete-story')
+story_markup_admin = InlineKeyboardMarkup(
+    row_width=2).add(approve_story, delete_story)
+
+next_story = KeyboardButton(
+    'Наступна історія')
+
+next_story_markup = ReplyKeyboardMarkup(
+    resize_keyboard=True).add(next_story, "Назад")
