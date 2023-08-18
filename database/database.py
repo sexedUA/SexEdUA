@@ -1,133 +1,118 @@
-import sqlite3 as sq
+import os
+import libsql_client
+import uuid
+import logging
+
+
+client = libsql_client.create_client_sync(
+    url=os.getenv("TURS0_URL"), auth_token=os.getenv("TURSO_TOKEN")
+)
 
 
 async def db_start():
-    global db, cur
-    db = sq.connect("kamasutra.db")
-    cur = db.cursor()
-    cur.execute(
-        "CREATE TABLE IF NOT EXISTS users("
-        "id INTEGER PRIMARY KEY AUTOINCREMENT, "
-        "tg_id INTEGER, "
-        "cart_id TEXT, "
-        "age INTEGER, "
-        "gender INTEGER, "
-        "orientation INTEGER) "
-    )
-    db.commit()
-    cur.execute(
-        "CREATE TABLE IF NOT EXISTS positions("
-        "i_id INTEGER PRIMARY KEY AUTOINCREMENT, "
-        "desc TEXT, "
-        "photo BLOB )")
-    db.commit()
-    cur.execute(
-        "CREATE TABLE IF NOT EXISTS stories("
-        "id INTEGER PRIMARY KEY AUTOINCREMENT, "
-        "text TEXT, "
-        "status TEXT )")
-    db.commit()
-    cur.execute(
-        "CREATE TABLE IF NOT EXISTS reviews("
-        "id INTEGER PRIMARY KEY AUTOINCREMENT, "
-        "desc TEXT, "
-        "link TEXT,  "
-        "photo BLOB,  "
-        "file_id TEXT)")
-    db.commit()
+    pass
+
+
+async def db_close():
+    client.close()
 
 
 async def cmd_start_db(user_id, age, gender, orientation):
-    user = cur.execute("SELECT * FROM users WHERE tg_id = ?",
-                       (user_id,)).fetchone()
-
+    rs = client.execute(f"select * from users where tg_id == {user_id}")
+    user = rs.rows
     if not user:
-        cur.execute("INSERT INTO users (tg_id, age, gender, orientation) VALUES (?, ?, ?, ?)",
-                    (user_id, age, gender, orientation))
-        db.commit()
+        client.execute(
+            "insert into users values (:uid, :tg_id, :age, :gender, :orientation)",
+            {
+                "uid": f"{uuid.uuid4()}",
+                "tg_id": user_id,
+                "age": age,
+                "gender": gender,
+                "orientation": orientation,
+            },
+        )
 
 
 def get_user(user_id):
-    connection = sq.connect("kamasutra.db")
-    cur.execute("SELECT * FROM users WHERE tg_id = ?", (user_id,))
-    user = cur.fetchone()
-    connection.close()
-    return user
+    rs = client.execute(f"select * from users where tg_id == {user_id}")
+    return rs.rows
 
 
 async def add_item(state):
     async with state.proxy() as data:
-        connection = sq.connect("kamasutra.db")
-        cur = connection.cursor()
-        cur.execute("INSERT INTO positions (desc, photo) VALUES (?, ?)",
-                    (data['desc'], data['photo']))
-        connection.commit()
-        connection.close()
+        client.execute(
+            "insert into positions values (:uid, :description, :photo)",
+            {
+                "uid": f"{uuid.uuid4()}",
+                "description": data["desc"],
+                "photo": data["photo"],
+            },
+        )
+
 
 async def add_review(state):
     async with state.proxy() as data:
-        connection = sq.connect("kamasutra.db")
-        cur = connection.cursor()
-        cur.execute("INSERT INTO reviews (desc, link,  photo) VALUES (?, ?, ?)",
-                    (data['desc'], data['link'], data['photo']))
-        connection.commit()
-        connection.close()
+        client.execute(
+            "insert into reviews values (:uid, :description, :link, :photo)",
+            {
+                "uid": f"{uuid.uuid4()}",
+                "description": data["desc"],
+                "link": data["link"],
+                "photo": data["photo"],
+            },
+        )
 
 
 def get_positions():
-    connection = sq.connect("kamasutra.db")
-    cur = connection.cursor()
-    cur.execute("SELECT * FROM positions")
-    items_data = cur.fetchall()
-    connection.close()
-    return items_data
+    rs = client.execute("select * from positions")
+    return rs.rows
 
 
 def get_review():
-    connection = sq.connect("kamasutra.db")
-    cur = connection.cursor()
-    cur.execute("SELECT * FROM reviews")
-    photo_data = cur.fetchall()
-    connection.close()
-    return photo_data
+    rs = client.execute("select * from reviews")
+    return rs.rows
 
 
 def get_stories():
-    connection = sq.connect("kamasutra.db")
-    cur = connection.cursor()
-    cur.execute("SELECT * FROM stories WHERE status == 'active'")
-    items_data = cur.fetchall()
-    connection.close()
-    return items_data
+    rs = client.execute("select * from stories where status == 1")
+    return rs.rows
 
 
 def get_stories_admin():
-    connection = sq.connect("kamasutra.db")
-    cur = connection.cursor()
-    cur.execute("SELECT * FROM stories WHERE status == 'inactive'")
-    items_data = cur.fetchall()
-    connection.close()
-    return items_data
+    rs = client.execute("select * from stories where status == 0")
+    return rs.rows
 
 
 async def add_story(state):
     async with state.proxy() as data:
-        connection = sq.connect("kamasutra.db")
-        cur = connection.cursor()
-        cur.execute("INSERT INTO stories (text, status) VALUES (?, ?)",
-                    (data["text"], 'inactive'))
-        connection.commit()
-        connection.close()
+        client.execute(
+            "insert into stories values (:uid, :content, :status)",
+            {"uid": f"{uuid.uuid4()}", "content": data["text"], "status": False},
+        )
 
 
-# connection = sq.connect("kamasutra.db")
-# cur = connection.cursor()
-# cur.execute('DELETE FROM reviews WHERE id=6')
-# connection.commit()
-# connection.close()
+async def add_subscriber(user_id):
+    try:
+        await client.execute("INSERT INTO subscribers (user_id) VALUES (?)", (user_id,))
+        logging.info(f"User {user_id} added to subscribers.")
+    except Exception as e:
+        if "UNIQUE constraint failed" in str(e):
+            logging.info(f"User {user_id} is already a subscriber.")
+        else:
+            logging.error(f"Error adding user {user_id} to subscribers: {e}")
 
-# connection = sq.connect("kamasutra.db")
-# cur = connection.cursor()
-# cur.execute("DROP TABLE IF EXISTS reviews")
-# connection.commit()
-# connection.close()
+
+def get_subscribers():
+    query = "SELECT user_id FROM subscribers"
+    result = client.execute(query)
+    subscribers = [row[0] for row in result.rows]
+    return subscribers
+
+
+def get_info():
+    rs = client.execute("SELECT * FROM users")
+    return rs.rows
+
+
+table_info = get_info()
+print(table_info)
