@@ -6,9 +6,6 @@ from keyboards import keyboards as kb
 from database import database as db
 from dotenv import load_dotenv
 import os
-import time
-import schedule
-import io
 from handlers.menu import quiz_handler
 from handlers.quiz import quiz_choose_handler
 from handlers.story import story_handler, read_story, add_story, Story
@@ -21,12 +18,11 @@ from handlers.greetings import (
     get_gender,
     get_orientation,
 )
-from handlers.kamasutra import show_animation, positions
-from handlers.reviews import show_photo, send_review
+from handlers.kamasutra import positions
+from handlers.reviews import send_review
 from handlers.talk import talk_handler
-from bs4 import BeautifulSoup
-import sqlite3 as sq
-from aioschedule import every, run_pending
+
+import asyncio
 
 
 storage = MemoryStorage()
@@ -140,12 +136,13 @@ async def add_item_desc(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
         data["text"] = message.text
     await db.add_story(state)
-    await message.answer("Історія додана! Скоро вона стане доступною для усіх")
+    await message.answer("Історія додана! Скоро вона стане доступною для усіх", reply_markup=kb.story_markup)
     await state.finish()
 
 
 @dp.callback_query_handler(
-    lambda query: query.data in ["vibrator_quiz"] or query.data.startswith("quiz")
+    lambda query: query.data in [
+        "vibrator_quiz"] or query.data.startswith("quiz")
 )
 async def quiz_callback(callback: types.CallbackQuery):
     global quiz_score
@@ -194,9 +191,7 @@ async def answer(message: types.Message):
 
 
 if __name__ == "__main__":
-
     loop = asyncio.get_event_loop()
     loop.create_task(schedule_positions())
-        executor.start_polling(
-        dp, on_startup=set_default_commands, skip_updates=True, on_shutdown=on_shutdown)
-
+    executor.start_polling(dp, on_startup=set_default_commands,
+                           skip_updates=True, on_shutdown=on_shutdown)

@@ -35,12 +35,6 @@ async def cmd_start_db(user_id, age, gender, orientation):
 
 def get_user(user_id):
     rs = client.execute(f'select * from users where tg_id == {user_id}')
-    user = rs.rows
-    if not user:
-        client.execute("insert into users values (:uid, :tg_id, :age, :gender, :orientation)",
-                       {"uid": f'{uuid.uuid4()}', "tg_id": user_id, "age": age,
-                        "gender": gender, "orientation": orientation}
-                       )
     return rs.rows
 
 
@@ -49,7 +43,6 @@ async def add_item(state):
 
         client.execute("insert into positions values (:uid, :description, :photo)",
                        {"uid": f'{uuid.uuid4()}', "description": data['desc'], "photo": data['photo']})
-
 
 
 async def add_review(state):
@@ -83,7 +76,8 @@ async def add_story(state):
     async with state.proxy() as data:
         client.execute(
             "insert into stories values (:uid, :content, :status)",
-            {"uid": f"{uuid.uuid4()}", "content": data["text"], "status": False},
+            {"uid": f"{uuid.uuid4()}",
+             "content": data["text"], "status": False},
         )
 
 
@@ -102,6 +96,7 @@ def get_subscribers():
     query = "SELECT user_id FROM subscribers"
     result = client.execute(query)
     subscribers = [row[0] for row in result.rows]
+    print(subscribers)
     return subscribers
 
 
@@ -113,6 +108,18 @@ def get_info():
 table_info = get_info()
 print(table_info)
 
+
+def get_story_by_text(text):
+    rs = client.execute(f"select id from stories where content == '{text}'")
+    return rs.rows
+
+
+def update_story(uid: str, type: str):
+    if type == 'approve-story':
+        client.execute(
+            f"update stories set status = {True} where id == '{uid}'")
+    else:
+        client.execute(f"delete from stories where id == '{uid}'")
 
 
 # connection = sq.connect("kamasutra.db")
@@ -126,4 +133,3 @@ print(table_info)
 # cur.execute("DROP TABLE IF EXISTS reviews")
 # connection.commit()
 # connection.close()
-

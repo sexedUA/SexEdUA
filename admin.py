@@ -60,13 +60,34 @@ async def menu_handler(message: types.Message):
     await message.answer("Вибери над чим будеш працювати", reply_markup=kb.main_menu_admin)
 
 
-@dp.message_handler(text='Секс-історія')
+@dp.message_handler(text="Секс-історія")
 async def get_stories(message: types.Message):
     stories = db.get_stories_admin()
     if stories:
-        pass
+        story = stories.pop(0)
+        id, text, status = story
+        await message.answer(text=text, reply_markup=kb.story_markup_admin)
     else:
         await message.answer("Нових історій не знайдено 😔")
+
+
+@dp.message_handler(text='Наступна історія')
+async def next_story(message: types.Message):
+    stories = db.get_stories_admin()
+    if stories:
+        story = stories.pop(0)
+        id, text, status = story
+        await message.answer(text=text, reply_markup=kb.story_markup_admin)
+    else:
+        await message.answer("Нових історій не знайдено 😔")
+
+
+@dp.callback_query_handler(lambda query: query.data in ['approve-story', 'delete-story'])
+async def story_query(callback_query: types.CallbackQuery):
+    story_id, = db.get_story_by_text(callback_query.message.text).pop(0)
+    db.update_story(story_id, callback_query.data)
+    answer = 'Історія додана' if callback_query.data == 'approve-story' else "Історія видалена"
+    await callback_query.message.answer(text=answer, reply_markup=kb.next_story_markup)
 
 
 @dp.message_handler(text="Редагувати")
