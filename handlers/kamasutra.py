@@ -1,17 +1,12 @@
-from aiogram import Bot, Dispatcher, executor, types
+from aiogram import Bot, Dispatcher, types
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
-from aiogram.dispatcher.filters.state import State, StatesGroup
-from aiogram.dispatcher import FSMContext
+
 from keyboards import keyboards as kb
 from database import database as db
 from dotenv import load_dotenv
 import random
 import os
-import time
 import io
-from handlers.menu import quiz_handler
-from handlers.quiz import quiz_choose_handler
-from handlers.story import story_handler, read_story, add_story, Story
 
 storage = MemoryStorage()
 load_dotenv()

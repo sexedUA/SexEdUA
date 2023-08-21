@@ -11,6 +11,11 @@ client = libsql_client.create_client_sync(
 
 async def db_start():
     pass
+    # client.execute("""create table if not exists youtube (
+    #                id uuid primary key,
+    #                description text,
+    #                link text
+    # ) """)
 
 
 async def db_close():
@@ -83,7 +88,8 @@ async def add_story(state):
 
 async def add_subscriber(user_id):
     try:
-        await client.execute("INSERT INTO subscribers (user_id) VALUES (?)", (user_id,))
+        client.execute(
+            "INSERT INTO subscribers (user_id) VALUES (?)", (user_id,))
         logging.info(f"User {user_id} added to subscribers.")
     except Exception as e:
         if "UNIQUE constraint failed" in str(e):
@@ -96,7 +102,6 @@ def get_subscribers():
     query = "SELECT user_id FROM subscribers"
     result = client.execute(query)
     subscribers = [row[0] for row in result.rows]
-    print(subscribers)
     return subscribers
 
 
@@ -120,6 +125,20 @@ def update_story(uid: str, type: str):
             f"update stories set status = {True} where id == '{uid}'")
     else:
         client.execute(f"delete from stories where id == '{uid}'")
+
+
+def get_link():
+    rs = client.execute("select * from youtube")
+    return rs.rows
+
+
+async def add_link(state):
+    async with state.proxy() as data:
+        client.execute(
+            "insert into youtube values (:uid, :description, :link)",
+            {"uid": f"{uuid.uuid4()}",
+             "description": data["description"], "link": data["link"]},
+        )
 
 
 # connection = sq.connect("kamasutra.db")

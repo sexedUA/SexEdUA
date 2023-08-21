@@ -87,14 +87,14 @@ vibrator_q4 = create_question_btn(question_4, "end")
 
 main_menu_admin = ReplyKeyboardMarkup(resize_keyboard=True)
 main_menu_admin.add("Поза дня").add("Секс-історія").add("Секс-шоп").add(
-    "Додати ревью на товар"
-)
+    "Додати ревью на товар").add('Додати посилання на YouTube')
 
 adminpanel = InlineKeyboardMarkup(row_width=1)
 adminpanel.add(
     InlineKeyboardButton(text="Додати контент", callback_data="add"),
     InlineKeyboardButton(text="Видалити контент", callback_data="delete"),
     InlineKeyboardButton(text="Зробити розсилку", callback_data="mail"),
+
 )
 
 cancel = ReplyKeyboardMarkup(resize_keyboard=True)
@@ -108,38 +108,11 @@ add_story = InlineKeyboardButton(
 
 story_markup = InlineKeyboardMarkup(row_width=2).add(read_story, add_story)
 
-kamshot = InlineKeyboardButton(
-    "Передчасна еакуляція 💦", url="https://www.youtube.com/watch?v=VlnqPZlw54U"
-)
-anal = InlineKeyboardButton(
-    "Факапи в анальному сексі 🚩", url="https://www.youtube.com/watch?v=sQgxRovNQgc"
-)
-oral = InlineKeyboardButton(
-    "Міфи про оральний секс 💭", url="https://www.youtube.com/watch?v=3gkGIHtQgkU"
-)
-rings = InlineKeyboardButton(
-    "Для чого потрібні ерекційні кільця 💍",
-    url="https://www.youtube.com/watch?v=Q_btfckG7R8",
-)
-all_content = InlineKeyboardButton(
-    "Підписатися на наш канал 🔔", url="https://www.youtube.com/@user-ew4wg1bm9b"
-)
-
-talk_markup = (
-    InlineKeyboardMarkup(row_width=1)
-    .add(kamshot)
-    .add(anal)
-    .add(oral)
-    .add(rings)
-    .add(all_content)
-)
 
 Subscr = ReplyKeyboardMarkup(resize_keyboard=True)
 yes_btn = KeyboardButton("Хочу ✅")
 no_btn = KeyboardButton("Пізніше ❌")
 Subscr.add(yes_btn, no_btn)
-talk_markup = InlineKeyboardMarkup(row_width=1).add(
-    kamshot).add(anal).add(oral).add(rings).add(all_content)
 
 
 approve_story = InlineKeyboardButton(
