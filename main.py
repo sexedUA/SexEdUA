@@ -23,6 +23,7 @@ from handlers.reviews import send_review
 from handlers.talk import talk_handler
 
 import asyncio
+import datetime
 
 
 storage = MemoryStorage()
@@ -181,8 +182,11 @@ async def send_positions_to_subscribers():
 
 async def schedule_positions():
     while True:
-        await send_positions_to_subscribers()
-        await asyncio.sleep(3)
+        await asyncio.sleep(60)  # Adjust interval as needed
+        now = datetime.datetime.now()
+        if now.hour == 10 and now.minute == 30:
+            await send_positions_to_subscribers()
+            await asyncio.sleep(60*60*24)  # Sleep for 24 hours
 
 
 @dp.message_handler()
@@ -194,4 +198,4 @@ if __name__ == "__main__":
     loop = asyncio.get_event_loop()
     loop.create_task(schedule_positions())
     executor.start_polling(dp, on_startup=set_default_commands,
-                           skip_updates=True, on_shutdown=on_shutdown)
+                           skip_updates=True, on_shutdown=on_shutdown, loop=loop)

@@ -39,6 +39,11 @@ class NewReview(StatesGroup):
     link = State()
 
 
+class NewLink(StatesGroup):
+    description = State()
+    link = State()
+
+
 @dp.message_handler(commands=["start"])
 async def cmd_start(message: types.Message):
     if message.from_user.id == int(os.getenv("ADMIN_ID1")) or message.from_user.id == int(os.getenv("ADMIN_ID2")):
@@ -193,6 +198,29 @@ async def add_review_photo(message: types.Message, state: FSMContext):
         data['photo'] = photo_bytes
     await db.add_review(state)
     await message.answer("Огляд товару доданий!", reply_markup=kb.main_menu_admin)
+    await state.finish()
+
+
+@dp.message_handler(text='Додати посилання на YouTube')
+async def add_link_handler(message: types.Message):
+    await message.answer("Потрібно додати опис відео", reply_markup=kb.cancel)
+    await NewLink.description.set()
+
+
+@dp.message_handler(state=NewLink.description)
+async def add_link_desc(message: types.Message, state: FSMContext):
+    async with state.proxy() as data:
+        data["description"] = message.text
+    await message.answer("Додайте лінк на відео з YouTube")
+    await NewLink.link.set()
+
+
+@dp.message_handler(state=NewLink.link)
+async def add_video_link(message: types.Message, state: FSMContext):
+    async with state.proxy() as data:
+        data["link"] = message.text
+    await db.add_link(state)
+    await message.answer("Посилання додане!", reply_markup=kb.main_menu_admin)
     await state.finish()
 
 if __name__ == "__main__":
