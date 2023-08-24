@@ -253,7 +253,8 @@ async def view_consultation_requests(message: types.Message):
                 response += f"Phone: {phone}\n"
 
         if response:
-            keyboard = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
+            keyboard = types.ReplyKeyboardMarkup(
+                row_width=1, resize_keyboard=True)
             keyboard.add("Переглянуто", "Вийти")
 
             await message.answer(
