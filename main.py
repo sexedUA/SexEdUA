@@ -39,6 +39,10 @@ class Greetings(StatesGroup):
     orientation = State()
 
 
+class Consulting(StatesGroup):
+    waiting_for_phone = State()
+
+
 async def set_default_commands(dp):
     commands = [
         types.BotCommand("start", "Почати"),
@@ -137,13 +141,15 @@ async def add_item_desc(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
         data["text"] = message.text
     await db.add_story(state)
-    await message.answer("Історія додана! Скоро вона стане доступною для усіх", reply_markup=kb.story_markup)
+    await message.answer(
+        "Історія додана! Скоро вона стане доступною для усіх",
+        reply_markup=kb.story_markup,
+    )
     await state.finish()
 
 
 @dp.callback_query_handler(
-    lambda query: query.data in [
-        "vibrator_quiz"] or query.data.startswith("quiz")
+    lambda query: query.data in ["vibrator_quiz"] or query.data.startswith("quiz")
 )
 async def quiz_callback(callback: types.CallbackQuery):
     global quiz_score
@@ -153,6 +159,23 @@ async def quiz_callback(callback: types.CallbackQuery):
 @dp.message_handler(text="Поговоримо про секс?")
 async def talk(message: types.Message):
     await talk_handler(message)
+
+
+@dp.message_handler(text="Консультація з менеджером 📞")
+async def consultation_start(message: types.Message):
+    await message.answer("Введіть ваш номер телефону:")
+    await Consulting.waiting_for_phone.set()
+
+
+@dp.message_handler(state=Consulting.waiting_for_phone)
+async def process_phone(message: types.Message, state: FSMContext):
+    async with state.proxy() as data:
+        data["phone"] = message.text
+        await db.add_consultation(state, data["phone"])
+        await message.answer(
+            "Дякуємо, ваша консультація була зареєстрована! Наші менеджери скоро з вами зв'яжуться 😉"
+        )
+    await state.finish()
 
 
 @dp.message_handler(text="Підписатись на щоденний контент 🔔")
@@ -168,10 +191,10 @@ async def subscribe_decision(message: types.Message, state: FSMContext):
     user_id = message.from_user.id
 
     if message.text == "Хочу ✅":
-        await db.add_subscriber(user_id)  # Используем await здесь
+        await db.add_subscriber(user_id)
         await message.answer("Дякуємо за підписку! 🎉")
     else:
-        await message.answer("Будемо чекати тебе 😙")
+        await message.answer("Будемо чекати тебе 😙", reply_markup=kb.main_menu)
 
 
 async def send_positions_to_subscribers():
@@ -186,7 +209,7 @@ async def schedule_positions():
         now = datetime.datetime.now()
         if now.hour == 10 and now.minute == 30:
             await send_positions_to_subscribers()
-            await asyncio.sleep(60*60*24)  # Sleep for 24 hours
+            await asyncio.sleep(60 * 60 * 24)  # Sleep for 24 hours
 
 
 @dp.message_handler()
@@ -197,5 +220,10 @@ async def answer(message: types.Message):
 if __name__ == "__main__":
     loop = asyncio.get_event_loop()
     loop.create_task(schedule_positions())
-    executor.start_polling(dp, on_startup=set_default_commands,
-                           skip_updates=True, on_shutdown=on_shutdown, loop=loop)
+    executor.start_polling(
+        dp,
+        on_startup=set_default_commands,
+        skip_updates=True,
+        on_shutdown=on_shutdown,
+        loop=loop,
+    )
