@@ -147,8 +147,15 @@ def update_story(uid: str, type: str):
 
 
 def get_link():
-    rs = client.execute("select * from youtube")
+    rs = client.execute(
+        "select description, link from youtube where id != '03422922-b37a-48e6-9aff-564adfe803e1'")
     return rs.rows
+
+
+def get_link_subcribe():
+    rs = client.execute(
+        "select description, link from youtube where id = '03422922-b37a-48e6-9aff-564adfe803e1'")
+    return rs.rows[0]
 
 
 async def add_link(state):

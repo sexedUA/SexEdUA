@@ -17,7 +17,8 @@ need_help = KeyboardButton("Консультація з менеджером �
 main_menu = ReplyKeyboardMarkup(
     one_time_keyboard=True,
     resize_keyboard=True,
-    keyboard=[[talk], [quiz, story], [kamasutra, review], [subscribe], [need_help]],
+    keyboard=[[talk], [quiz, story], [
+        kamasutra, review], [subscribe], [need_help]],
 )
 
 greetings = InlineKeyboardMarkup(row_width=2)
@@ -100,8 +101,10 @@ cancel = ReplyKeyboardMarkup(resize_keyboard=True)
 cancel.add("Назад")
 
 
-read_story = InlineKeyboardButton("Читати історію 🗞️", callback_data="read_story")
-add_story = InlineKeyboardButton("Розказати свою 🖋️", callback_data="add_story")
+read_story = InlineKeyboardButton(
+    "Читати історію 🗞️", callback_data="read_story")
+add_story = InlineKeyboardButton(
+    "Розказати свою 🖋️", callback_data="add_story")
 
 story_markup = InlineKeyboardMarkup(row_width=2).add(read_story, add_story)
 
@@ -112,10 +115,23 @@ no_btn = KeyboardButton("Пізніше ❌")
 Subscr.add(yes_btn, no_btn)
 
 
-approve_story = InlineKeyboardButton("Додати історію", callback_data="approve-story")
-delete_story = InlineKeyboardButton("Видалити історію", callback_data="delete-story")
-story_markup_admin = InlineKeyboardMarkup(row_width=2).add(approve_story, delete_story)
+approve_story = InlineKeyboardButton(
+    "Додати історію", callback_data="approve-story")
+delete_story = InlineKeyboardButton(
+    "Видалити історію", callback_data="delete-story")
+story_markup_admin = InlineKeyboardMarkup(
+    row_width=2).add(approve_story, delete_story)
 
 next_story = KeyboardButton("Наступна історія")
 
-next_story_markup = ReplyKeyboardMarkup(resize_keyboard=True).add(next_story, "Назад")
+next_story_markup = ReplyKeyboardMarkup(
+    resize_keyboard=True).add(next_story, "Назад")
+
+
+next_link = InlineKeyboardButton('Далі ➡️', callback_data='next_link')
+prev_link = InlineKeyboardButton('⬅️ Назад', callback_data='prev_link')
+
+end_link = InlineKeyboardButton(
+    'Це поки увесь контент ☹️', callback_data='back_to_menu')
+back_to_main = InlineKeyboardButton(
+    'На головну ➡️', callback_data='back_to_menu')
