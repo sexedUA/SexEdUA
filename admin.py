@@ -18,7 +18,7 @@ async def set_default_commands(dp):
     commands = [
         types.BotCommand("start", "Почати"),
         types.BotCommand("menu", "Головне меню"),
-        types.BotCommand("cancel", "Вийти")
+        types.BotCommand("cancel", "Вийти"),
     ]
     await bot.set_my_commands(commands)
     print("Бот запрацював!")
@@ -46,8 +46,13 @@ class NewLink(StatesGroup):
 
 @dp.message_handler(commands=["start"])
 async def cmd_start(message: types.Message):
-    if message.from_user.id == int(os.getenv("ADMIN_ID1")) or message.from_user.id == int(os.getenv("ADMIN_ID2")):
-        await message.answer("Привіт, Адмін. Над чим попрацюємо сьогодні?", reply_markup=kb.main_menu_admin)
+    if message.from_user.id == int(
+        os.getenv("ADMIN_ID1")
+    ) or message.from_user.id == int(os.getenv("ADMIN_ID2")):
+        await message.answer(
+            "Привіт, Адмін. Над чим попрацюємо сьогодні?",
+            reply_markup=kb.main_menu_admin,
+        )
 
 
 @dp.message_handler(text="Назад", state="*")
@@ -55,14 +60,22 @@ async def cancel_handler(message: types.Message, state: FSMContext):
     current_state = await state.get_state()
     if (current_state == "NewOrder.desc") or (current_state == "NewOrder.photo"):
         await state.finish()
-        await message.answer("Ви вийшли з поточного стану. Що б ви хотіли робити далі?", reply_markup=kb.main_menu_admin)
+        await message.answer(
+            "Ви вийшли з поточного стану. Що б ви хотіли робити далі?",
+            reply_markup=kb.main_menu_admin,
+        )
     await state.finish()
-    await message.answer("Ви вийшли з поточного стану. Що б ви хотіли робити далі?", reply_markup=kb.main_menu_admin)
+    await message.answer(
+        "Ви вийшли з поточного стану. Що б ви хотіли робити далі?",
+        reply_markup=kb.main_menu_admin,
+    )
 
 
 @dp.message_handler(commands=["menu"])
 async def menu_handler(message: types.Message):
-    await message.answer("Вибери над чим будеш працювати", reply_markup=kb.main_menu_admin)
+    await message.answer(
+        "Вибери над чим будеш працювати", reply_markup=kb.main_menu_admin
+    )
 
 
 @dp.message_handler(text="Секс-історія")
@@ -76,7 +89,7 @@ async def get_stories(message: types.Message):
         await message.answer("Нових історій не знайдено 😔")
 
 
-@dp.message_handler(text='Наступна історія')
+@dp.message_handler(text="Наступна історія")
 async def next_story(message: types.Message):
     stories = db.get_stories_admin()
     if stories:
@@ -87,11 +100,17 @@ async def next_story(message: types.Message):
         await message.answer("Нових історій не знайдено 😔")
 
 
-@dp.callback_query_handler(lambda query: query.data in ['approve-story', 'delete-story'])
+@dp.callback_query_handler(
+    lambda query: query.data in ["approve-story", "delete-story"]
+)
 async def story_query(callback_query: types.CallbackQuery):
-    story_id, = db.get_story_by_text(callback_query.message.text).pop(0)
+    (story_id,) = db.get_story_by_text(callback_query.message.text).pop(0)
     db.update_story(story_id, callback_query.data)
-    answer = 'Історія додана' if callback_query.data == 'approve-story' else "Історія видалена"
+    answer = (
+        "Історія додана"
+        if callback_query.data == "approve-story"
+        else "Історія видалена"
+    )
     await callback_query.message.answer(text=answer, reply_markup=kb.next_story_markup)
 
 
@@ -107,8 +126,7 @@ async def contacts(message: types.Message):
 async def callback_query_keyboard(callback_query: types.CallbackQuery):
     if callback_query.data == "add":
         await bot.send_message(
-            chat_id=callback_query.from_user.id,
-            text="Оберіть тип контенту"
+            chat_id=callback_query.from_user.id, text="Оберіть тип контенту"
         )
     elif callback_query.data == "delete":
         await bot.send_message(
@@ -136,7 +154,7 @@ async def add_item_desc(message: types.Message, state: FSMContext):
 
 @dp.message_handler(lambda message: not message.photo, state=NewOrder.photo)
 async def add_item_content_check(message: types.Message):
-    await message.answer('Це не фото і не гіф!')
+    await message.answer("Це не фото і не гіф!")
 
 
 @dp.message_handler(content_types=[types.ContentType.ANIMATION], state=NewOrder.photo)
@@ -145,7 +163,7 @@ async def add_item_animation(message: types.Message, state: FSMContext):
         file_path = await bot.get_file(message.animation.file_id)
         animation_file = await bot.download_file(file_path.file_path)
         animation_bytes = animation_file.read()
-        data['photo'] = animation_bytes
+        data["photo"] = animation_bytes
     await db.add_item(state)
     await message.answer("Поза додана!", reply_markup=kb.main_menu_admin)
     await state.finish()
@@ -154,7 +172,7 @@ async def add_item_animation(message: types.Message, state: FSMContext):
 @dp.message_handler(content_types=[types.ContentType.PHOTO], state=NewOrder.photo)
 async def add_item_photo(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
-        data['photo'] = message.photo[0].file_id
+        data["photo"] = message.photo[0].file_id
     await db.add_item(state)
     await message.answer("Поза додана!", reply_markup=kb.main_menu_admin)
     await state.finish()
@@ -184,7 +202,7 @@ async def add_review_link(message: types.Message, state: FSMContext):
 
 @dp.message_handler(lambda message: not message.photo, state=NewReview.photo)
 async def add_review_content_check(message: types.Message):
-    await message.answer('Це не фото :(')
+    await message.answer("Це не фото :(")
 
 
 @dp.message_handler(content_types=[types.ContentType.PHOTO], state=NewReview.photo)
@@ -195,13 +213,13 @@ async def add_review_photo(message: types.Message, state: FSMContext):
         file_path = await bot.get_file(photo_obj.file_id)
         photo_file = await bot.download_file(file_path.file_path)
         photo_bytes = photo_file.read()
-        data['photo'] = photo_bytes
+        data["photo"] = photo_bytes
     await db.add_review(state)
     await message.answer("Огляд товару доданий!", reply_markup=kb.main_menu_admin)
     await state.finish()
 
 
-@dp.message_handler(text='Додати посилання на YouTube')
+@dp.message_handler(text="Додати посилання на YouTube")
 async def add_link_handler(message: types.Message):
     await message.answer("Потрібно додати опис відео", reply_markup=kb.cancel)
     await NewLink.description.set()
@@ -223,6 +241,45 @@ async def add_video_link(message: types.Message, state: FSMContext):
     await message.answer("Посилання додане!", reply_markup=kb.main_menu_admin)
     await state.finish()
 
+
+@dp.message_handler(text="Переглянути заявки на консультацію")
+async def view_consultation_requests(message: types.Message):
+    consultation_requests = db.get_consultation_requests()
+
+    if consultation_requests:
+        response = ""
+        for phone, status in consultation_requests:
+            if not status:
+                response += f"Phone: {phone}\n"
+
+        if response:
+            keyboard = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
+            keyboard.add("Переглянуто", "Вийти")
+
+            await message.answer(
+                f"Список заявок на консультацію зі статусом 'Не переглянуто':\n{response}",
+                reply_markup=keyboard,
+            )
+        else:
+            await message.answer("Всі заявки вже переглянуті.")
+    else:
+        await message.answer("Немає заявок на консультацію")
+
+
+@dp.message_handler(text="Переглянуто")
+async def mark_consultation_viewed(message: types.Message):
+    consultation_requests = db.get_consultation_requests()
+
+    for phone, status in consultation_requests:
+        if not status:
+            await db.update_consultation_status(
+                phone, True
+            )  # Добавляем await перед функцией
+
+    await message.answer("Статуси заявок на консультацію змінено на 'Переглянуто'.")
+
+
 if __name__ == "__main__":
     executor.start_polling(
-        dp, on_startup=set_default_commands, skip_updates=True, on_shutdown=on_shutdown)
+        dp, on_startup=set_default_commands, skip_updates=True, on_shutdown=on_shutdown
+    )

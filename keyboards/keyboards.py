@@ -12,13 +12,12 @@ story = KeyboardButton("Sex Stories 😜")
 kamasutra = KeyboardButton("ПОЗА ДНЯ😏")
 review = KeyboardButton("Відкрий скарбничку з іграшками 🧸")
 subscribe = KeyboardButton("Підписатись на щоденний контент 🔔")
-need_help = KeyboardButton("Допомога ℹ️")
+need_help = KeyboardButton("Консультація з менеджером 📞")
 
 main_menu = ReplyKeyboardMarkup(
     one_time_keyboard=True,
     resize_keyboard=True,
-    keyboard=[[talk], [quiz, story], [
-        kamasutra, review], [subscribe], [need_help]],
+    keyboard=[[talk], [quiz, story], [kamasutra, review], [subscribe], [need_help]],
 )
 
 greetings = InlineKeyboardMarkup(row_width=2)
@@ -86,25 +85,23 @@ vibrator_q3 = create_question_btn(question_3, "4")
 vibrator_q4 = create_question_btn(question_4, "end")
 
 main_menu_admin = ReplyKeyboardMarkup(resize_keyboard=True)
-main_menu_admin.add("Поза дня").add("Секс-історія").add("Секс-шоп").add(
-    "Додати ревью на товар").add('Додати посилання на YouTube')
+main_menu_admin.add("Поза дня").add("Секс-історія").add(
+    "Переглянути заявки на консультацію"
+).add("Додати ревью на товар").add("Додати посилання на YouTube")
 
 adminpanel = InlineKeyboardMarkup(row_width=1)
 adminpanel.add(
     InlineKeyboardButton(text="Додати контент", callback_data="add"),
     InlineKeyboardButton(text="Видалити контент", callback_data="delete"),
     InlineKeyboardButton(text="Зробити розсилку", callback_data="mail"),
-
 )
 
 cancel = ReplyKeyboardMarkup(resize_keyboard=True)
 cancel.add("Назад")
 
 
-read_story = InlineKeyboardButton(
-    "Читати історію 🗞️", callback_data="read_story")
-add_story = InlineKeyboardButton(
-    "Розказати свою 🖋️", callback_data="add_story")
+read_story = InlineKeyboardButton("Читати історію 🗞️", callback_data="read_story")
+add_story = InlineKeyboardButton("Розказати свою 🖋️", callback_data="add_story")
 
 story_markup = InlineKeyboardMarkup(row_width=2).add(read_story, add_story)
 
@@ -115,15 +112,10 @@ no_btn = KeyboardButton("Пізніше ❌")
 Subscr.add(yes_btn, no_btn)
 
 
-approve_story = InlineKeyboardButton(
-    'Додати історію', callback_data='approve-story')
-delete_story = InlineKeyboardButton(
-    'Видалити історію', callback_data='delete-story')
-story_markup_admin = InlineKeyboardMarkup(
-    row_width=2).add(approve_story, delete_story)
+approve_story = InlineKeyboardButton("Додати історію", callback_data="approve-story")
+delete_story = InlineKeyboardButton("Видалити історію", callback_data="delete-story")
+story_markup_admin = InlineKeyboardMarkup(row_width=2).add(approve_story, delete_story)
 
-next_story = KeyboardButton(
-    'Наступна історія')
+next_story = KeyboardButton("Наступна історія")
 
-next_story_markup = ReplyKeyboardMarkup(
-    resize_keyboard=True).add(next_story, "Назад")
+next_story_markup = ReplyKeyboardMarkup(resize_keyboard=True).add(next_story, "Назад")
