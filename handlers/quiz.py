@@ -52,31 +52,31 @@ async def quiz_choose_handler(callback: types.CallbackQuery, score: list):
             link = get_random_link(
                 get_links('https://lovespace.ua/uk/catalog/klitoralnye'))
             await callback.message.answer('Спробуй це 😏')
-            await callback.message.answer(link)
+            await callback.message.answer(f'{link}?utm_source=t_bot')
             await callback.message.answer('Або переглянь інші товари у цій категорії 👀')
-            await callback.message.answer('https://lovespace.ua/uk/catalog/klitoralnye')
+            await callback.message.answer('https://lovespace.ua/uk/catalog/klitoralnye?utm_source=t_bot')
             return []
         if 'quiz_q24' in score:
             link = get_random_link(
                 get_links('https://lovespace.ua/uk/catalog/vaginalnye'))
             await callback.message.answer('Спробуй це 😏')
-            await callback.message.answer(link)
+            await callback.message.answer(f'{link}?utm_source=t_bot')
             await callback.message.answer('Або переглянь інші товари у цій категорії 👀')
-            await callback.message.answer('https://lovespace.ua/uk/catalog/vaginalnye')
+            await callback.message.answer('https://lovespace.ua/uk/catalog/vaginalnye?utm_source=t_bot')
             return []
         if 'quiz_q22' in score:
             link = get_random_link(
                 get_links('https://lovespace.ua/uk/catalog/dvojnye-vibratory'))
             await callback.message.answer('Спробуй це 😏')
-            await callback.message.answer(link)
+            await callback.message.answer(f'{link}?utm_source=t_bot')
             await callback.message.answer('Або переглянь інші товари у цій категорії 👀')
-            await callback.message.answer('https://lovespace.ua/uk/catalog/dvojnye-vibratory')
+            await callback.message.answer('https://lovespace.ua/uk/catalog/dvojnye-vibratory?utm_source=t_bot')
             return []
         if 'quiz_q21' in score:
             link = get_random_link(
                 get_links('https://lovespace.ua/uk/catalog/nabori-igrashok'))
             await callback.message.answer('Спробуй це 😏')
-            await callback.message.answer(link)
+            await callback.message.answer(f'{link}?utm_source=t_bot')
             await callback.message.answer('Або переглянь інші товари у цій категорії 👀')
-            await callback.message.answer('https://lovespace.ua/uk/catalog/nabori-igrashok')
+            await callback.message.answer('https://lovespace.ua/uk/catalog/nabori-igrashok?utm_source=t_bot')
             return []

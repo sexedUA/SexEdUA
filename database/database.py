@@ -63,7 +63,7 @@ async def add_review(state):
             {
                 "uid": f"{uuid.uuid4()}",
                 "description": data["desc"],
-                "link": data["link"],
+                "link": f'{data["link"]}?utm_source=t_bot',
                 "photo": data["photo"],
             },
         )
@@ -93,7 +93,8 @@ async def add_story(state):
     async with state.proxy() as data:
         client.execute(
             "insert into stories values (:uid, :content, :status)",
-            {"uid": f"{uuid.uuid4()}", "content": data["text"], "status": False},
+            {"uid": f"{uuid.uuid4()}",
+             "content": data["text"], "status": False},
         )
 
 
@@ -111,7 +112,8 @@ async def add_consultation(state, phone: str):
 
 
 async def update_consultation_status(phone: str, status: bool):
-    client.execute("UPDATE consultings SET status = ? WHERE phone = ?", (status, phone))
+    client.execute(
+        "UPDATE consultings SET status = ? WHERE phone = ?", (status, phone))
 
 
 def get_consultation_requests():
@@ -121,7 +123,8 @@ def get_consultation_requests():
 
 async def add_subscriber(user_id):
     try:
-        client.execute("INSERT INTO subscribers (user_id) VALUES (?)", (user_id,))
+        client.execute(
+            "INSERT INTO subscribers (user_id) VALUES (?)", (user_id,))
     except Exception as e:
         if "UNIQUE constraint failed" not in str(e):
             logging.error(f"Error adding user {user_id} to subscribers: {e}")
@@ -141,7 +144,8 @@ def get_story_by_text(text):
 
 def update_story(uid: str, type: str):
     if type == "approve-story":
-        client.execute(f"update stories set status = {True} where id == '{uid}'")
+        client.execute(
+            f"update stories set status = {True} where id == '{uid}'")
     else:
         client.execute(f"delete from stories where id == '{uid}'")
 
@@ -165,7 +169,7 @@ async def add_link(state):
             {
                 "uid": f"{uuid.uuid4()}",
                 "description": data["description"],
-                "link": data["link"],
+                "link": f'{data["link"]}?utm_source=t_bot',
             },
         )
 
@@ -173,7 +177,3 @@ async def add_link(state):
 def get_info():
     rs = client.execute("SELECT * FROM consultings")
     return rs.rows
-
-
-table_info = get_info()
-print(table_info)
