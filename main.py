@@ -11,7 +11,7 @@ class DummyRequestHandler(BaseHTTPRequestHandler):
         self.send_header('Content-type', 'text/html')
         self.end_headers()
         # Replace with an appropriate message
-        self.wfile.write("Bot is running!")
+        self.wfile.write(b"Bot is running!")
         return
 
 
@@ -32,4 +32,6 @@ async def run_bots():
 if __name__ == '__main__':
     dummy_thread = threading.Thread(target=run_dummy_server)
     dummy_thread.start()
-    asyncio.run(run_bots())
+    # asyncio.run(run_bots())
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(run_bots())
