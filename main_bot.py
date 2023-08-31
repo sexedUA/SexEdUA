@@ -49,9 +49,9 @@ async def set_default_commands(dp):
         types.BotCommand("menu", "Головне меню"),
         types.BotCommand("cancel", "Вийти"),
     ]
-    description = 'Amazing bot'
+    # description = 'Amazing bot'
     await bot.set_my_commands(commands)
-    await bot.set_chat_description(description=description)
+    # await bot.set_chat_description(description=description)
     print("Бот запрацював!")
 
 
