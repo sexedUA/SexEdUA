@@ -1,7 +1,9 @@
+from aiogram.contrib.middlewares.logging import LoggingMiddleware
 from aiogram import Bot, Dispatcher, executor, types
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.dispatcher import FSMContext
+from aiogram.utils.executor import start_webhook
 from keyboards import keyboards as kb
 from database import database as db
 from dotenv import load_dotenv
@@ -21,11 +23,9 @@ from handlers.greetings import (
 from handlers.kamasutra import positions
 from handlers.reviews import send_review
 from handlers.talk import talk_handler
-from aiogram.utils.executor import start_webhook
 
 import asyncio
 import datetime
-from aiogram.contrib.middlewares.logging import LoggingMiddleware
 import logging
 
 RENDER_EXTERNAL_HOSTNAME = os.getenv("RENDER_EXTERNAL_HOSTNAME")
