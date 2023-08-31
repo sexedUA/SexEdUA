@@ -21,35 +21,32 @@ from handlers.greetings import (
 from handlers.kamasutra import positions
 from handlers.reviews import send_review
 from handlers.talk import talk_handler
+from aiogram.utils.executor import start_webhook
 
 import asyncio
 import datetime
+from aiogram.contrib.middlewares.logging import LoggingMiddleware
+import logging
 
-from http.server import BaseHTTPRequestHandler, HTTPServer
-import threading
-
-
-class DummyRequestHandler(BaseHTTPRequestHandler):
-    def do_GET(self):
-        self.send_response(200)
-        self.send_header('Content-type', 'text/html')
-        self.end_headers()
-        # Replace with an appropriate message
-        self.wfile.write(b"Bot is running!")
-        return
+RENDER_EXTERNAL_HOSTNAME = os.getenv("RENDER_EXTERNAL_HOSTNAME")
 
 
-def run_dummy_server():
-    server_address = ('', 10000)  # Choose a port that's not used by your bot
-    httpd = HTTPServer(server_address, DummyRequestHandler)
-    print('Dummy server is running...')
-    httpd.serve_forever()
+# webserver settings
+WEBAPP_HOST = "0.0.0.0"
+WEBAPP_PORT = 8080
 
+# webhook settings
+WEBHOOK_HOST = RENDER_EXTERNAL_HOSTNAME
+WEBHOOK_PATH = "/webhook"
+WEBHOOK_URL = f"{WEBHOOK_HOST}{WEBHOOK_PATH}"
+
+logging.basicConfig(level=logging.INFO)
 
 storage = MemoryStorage()
 load_dotenv()
 bot = Bot(os.getenv("TOKEN"))
 dp = Dispatcher(bot=bot, storage=storage)
+dp.middleware.setup(LoggingMiddleware())
 quiz_score = []
 start_link: int = 0
 
@@ -64,7 +61,8 @@ class Consulting(StatesGroup):
     waiting_for_phone = State()
 
 
-async def set_default_commands(dp):
+async def on_startup(dp):
+    await bot.set_webhook(WEBHOOK_URL)
     commands = [
         types.BotCommand("start", "Почати"),
         types.BotCommand("menu", "Головне меню"),
@@ -239,14 +237,23 @@ async def answer(message: types.Message):
 def run_main_bot():
     loop = asyncio.get_event_loop()
     loop.create_task(schedule_positions())
-    executor.start_polling(dp, on_startup=set_default_commands,
+    executor.start_polling(dp, on_startup=on_startup,
                            skip_updates=True, on_shutdown=on_shutdown, loop=loop)
 
 
 if __name__ == "__main__":
-    dummy_thread = threading.Thread(target=run_dummy_server)
-    dummy_thread.start()
+
     loop = asyncio.get_event_loop()
     loop.create_task(schedule_positions())
-    executor.start_polling(dp, on_startup=set_default_commands,
-                           skip_updates=True, on_shutdown=on_shutdown, loop=loop)
+    start_webhook(
+        dispatcher=dp,
+        webhook_path=WEBHOOK_PATH,
+        on_startup=on_startup,
+        on_shutdown=on_shutdown,
+        skip_updates=True,
+        loop=loop,
+        host=WEBAPP_HOST,
+        port=WEBAPP_PORT,
+    )
+    # executor.start_polling(dp, on_startup=set_default_commands,
+    #                        skip_updates=True, on_shutdown=on_shutdown, loop=loop)
