@@ -25,6 +25,27 @@ from handlers.talk import talk_handler
 import asyncio
 import datetime
 
+from http.server import BaseHTTPRequestHandler, HTTPServer
+import threading
+
+
+class DummyRequestHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.send_header('Content-type', 'text/html')
+        self.end_headers()
+        # Replace with an appropriate message
+        self.wfile.write(b"Bot is running!")
+        return
+
+
+def run_dummy_server():
+    server_address = ('', 10000)  # Choose a port that's not used by your bot
+    httpd = HTTPServer(server_address, DummyRequestHandler)
+    print('Dummy server is running...')
+    httpd.serve_forever()
+
+
 storage = MemoryStorage()
 load_dotenv()
 bot = Bot(os.getenv("TOKEN"))
@@ -49,9 +70,7 @@ async def set_default_commands(dp):
         types.BotCommand("menu", "Головне меню"),
         types.BotCommand("cancel", "Вийти"),
     ]
-    # description = 'Amazing bot'
     await bot.set_my_commands(commands)
-    # await bot.set_chat_description(description=description)
     print("Бот запрацював!")
 
 
@@ -225,6 +244,8 @@ def run_main_bot():
 
 
 if __name__ == "__main__":
+    dummy_thread = threading.Thread(target=run_dummy_server)
+    dummy_thread.start()
     loop = asyncio.get_event_loop()
     loop.create_task(schedule_positions())
     executor.start_polling(dp, on_startup=set_default_commands,
