@@ -1,7 +1,9 @@
+from aiogram.contrib.middlewares.logging import LoggingMiddleware
 from aiogram import Bot, Dispatcher, executor, types
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.dispatcher import FSMContext
+from aiogram.utils.executor import start_webhook
 from keyboards import keyboards as kb
 from database import database as db
 from dotenv import load_dotenv
@@ -24,11 +26,27 @@ from handlers.talk import talk_handler
 
 import asyncio
 import datetime
+import logging
+
+RENDER_EXTERNAL_HOSTNAME = os.getenv("RENDER_EXTERNAL_HOSTNAME")
+
+
+# webserver settings
+WEBAPP_HOST = "0.0.0.0"
+WEBAPP_PORT = 8080
+
+# webhook settings
+WEBHOOK_HOST = RENDER_EXTERNAL_HOSTNAME
+WEBHOOK_PATH = "/webhook"
+WEBHOOK_URL = f"{WEBHOOK_HOST}{WEBHOOK_PATH}"
+
+logging.basicConfig(level=logging.INFO)
 
 storage = MemoryStorage()
 load_dotenv()
 bot = Bot(os.getenv("TOKEN"))
 dp = Dispatcher(bot=bot, storage=storage)
+dp.middleware.setup(LoggingMiddleware())
 quiz_score = []
 start_link: int = 0
 
@@ -43,15 +61,14 @@ class Consulting(StatesGroup):
     waiting_for_phone = State()
 
 
-async def set_default_commands(dp):
+async def on_startup(dp):
+    await bot.set_webhook(WEBHOOK_URL)
     commands = [
         types.BotCommand("start", "Почати"),
         types.BotCommand("menu", "Головне меню"),
         types.BotCommand("cancel", "Вийти"),
     ]
-    description = 'Amazing bot'
     await bot.set_my_commands(commands)
-    await bot.set_chat_description(description=description)
     print("Бот запрацював!")
 
 
@@ -220,12 +237,23 @@ async def answer(message: types.Message):
 def run_main_bot():
     loop = asyncio.get_event_loop()
     loop.create_task(schedule_positions())
-    executor.start_polling(dp, on_startup=set_default_commands,
+    executor.start_polling(dp, on_startup=on_startup,
                            skip_updates=True, on_shutdown=on_shutdown, loop=loop)
 
 
 if __name__ == "__main__":
+
     loop = asyncio.get_event_loop()
     loop.create_task(schedule_positions())
-    executor.start_polling(dp, on_startup=set_default_commands,
-                           skip_updates=True, on_shutdown=on_shutdown, loop=loop)
+    start_webhook(
+        dispatcher=dp,
+        webhook_path=WEBHOOK_PATH,
+        on_startup=on_startup,
+        on_shutdown=on_shutdown,
+        skip_updates=True,
+        loop=loop,
+        host=WEBAPP_HOST,
+        port=WEBAPP_PORT,
+    )
+    # executor.start_polling(dp, on_startup=set_default_commands,
+    #                        skip_updates=True, on_shutdown=on_shutdown, loop=loop)
