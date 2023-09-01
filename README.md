@@ -1,6 +1,7 @@
-# sexedUA by Lovespace
-
-![Logo](./logo.jpg =100x100)
+<div style="display: flex; align-items: center;">
+  <img src="./logo.jpg" alt="Logo" width="100" height="100">
+  <h1>sexedUA by Lovespace</h1>
+</div>
 
 ## Authors
 
