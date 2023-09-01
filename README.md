@@ -1,11 +1,16 @@
 # sexedUA by Lovespace
 
-![Logo](./logo.jpg)
+![Logo](./logo.jpg =100x100)
 
+## Authors
+
+[![Marharyta Korotkova](https://img.shields.io/badge/GitHub-atiragramk-blue?logo=github)](https://github.com/atiragramk)
+[![Tetiana Ternova](https://img.shields.io/badge/GitHub-TaniaTernovaya-blue?logo=github)](https://github.com/TaniaTernovaya)
 
 ## About the Project
 
 The Lovespace Sex Journal Telegram Bot is a Telegram bot developed for Lovespace for the sale of sex toys and providing information on sexual education.
+
 
 ## Requirements
 
@@ -71,7 +76,3 @@ Fork the repository on GitHub.
 Create a new branch for your work: git checkout -b feature/new-feature.
 Make the necessary changes.
 Create a pull request (PR) to the main repository.
-## Authors
-[Marharyta Korotkova](https://github.com/atiragramk)
-
-[Tetiana Ternova](https://github.com/TaniaTernovaya)
